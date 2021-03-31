@@ -59,6 +59,17 @@ userSchema.methods.generateAuthToken = async function(){
     return token;
 }
 
+//getting only publicly available user data and hiding private ones (password and token), called upon JSON.stringify, therefore res.send
+userSchema.methods.toJSON = function(){
+    const user = this;
+
+    const userObject = user.toObject();
+    delete userObject.password;
+    delete userObject.tokens;
+
+    return userObject;
+}
+
 //adding a reference method to user schema to find user by email and password
 userSchema.statics.findByCredentials= async (email, password) => {
     const user = await User.findOne({email});
