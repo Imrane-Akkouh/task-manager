@@ -12,6 +12,15 @@ router.post('/users', (req, res)=>{
     })
 })
 
+router.post('/users/login', async (req, res)=>{
+    try{
+        const user = await User.findByCredentials(req.body.email, req.body.password);
+        res.send(user);
+    }catch(error){
+        res.status(400).send('Wrong credentials '+error);
+    }
+})
+
 router.get('/users', (req, res)=>{
     User.find({}).then(users => {
         res.status(200).send(users);
