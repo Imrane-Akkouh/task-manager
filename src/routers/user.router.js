@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model');
+const auth = require('../middleware/auth.middleware');
+const { request } = require('express');
 
+//creating a brand new user - endpoint 
 router.post('/users', (req, res)=>{
     const user = new User(req.body);
     
@@ -13,6 +16,7 @@ router.post('/users', (req, res)=>{
     })
 })
 
+//user login - endpoint
 router.post('/users/login', async (req, res)=>{
     try{
         const user = await User.findByCredentials(req.body.email, req.body.password);
@@ -23,14 +27,36 @@ router.post('/users/login', async (req, res)=>{
     }
 })
 
-router.get('/users', (req, res)=>{
-    User.find({}).then(users => {
-        res.status(200).send(users);
-    }).catch(error=>{
-        res.status(500).send(error);
-    })
+//user logout - endpoint
+router.post('/users/logout', auth, async (req, res)=>{
+    try{
+        req.user.tokens = req.user.tokens.filter(token=>{
+            return token.token !== req.token;
+        })
+        await req.user.save();
+        res.send();
+    }catch(error){
+        res.status(500).send('Ooops!! Something went wrong. '+error);
+    }
 })
 
+//user logout from all sessions/devices - endpoint
+router.post('/users/logoutAll', auth, async (req, res)=>{
+    try{
+        req.user.tokens =[]
+        await req.user.save();
+        res.send();
+    }catch(error){
+        res.status(500).send('Ooops!! Something went wrong. '+error);
+    }
+})
+
+//getting all users - endpoint
+router.get('/users/me', auth, (req, res)=>{
+    res.send(req.user);
+})
+
+//getting a user by id - endpoint
 router.get('/users/:id', (req, res)=>{
     const _id= req.params.id;
     User.find({_id}).then(user => {
@@ -43,6 +69,7 @@ router.get('/users/:id', (req, res)=>{
     })
 })
 
+//updating a user - endpoint
 router.patch('/users/:id', async (req, res)=>{
     const _id= req.params.id;
     const allowedUpdates = ['name', 'age', 'email', 'password'];
@@ -51,7 +78,6 @@ router.patch('/users/:id', async (req, res)=>{
     if(!isValidUpdate){
         return res.status(400).send('Unrecognized fields to update');
     }
-
     try{
         const user = await User.findById({_id});
         updateKeys.forEach(update=>{
@@ -67,6 +93,7 @@ router.patch('/users/:id', async (req, res)=>{
     }
 })
 
+//deleting a user - endpoint
 router.delete('/users/:id', async (req,res)=>{
     const _id= req.params.id;
     try{

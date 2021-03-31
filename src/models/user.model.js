@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
-    tokens: [{
+    tokens: [{ //holds multiple tokens in case user logs in with different devices
         token: {
             type: String,
             required: true
@@ -49,6 +49,7 @@ const userSchema = new mongoose.Schema({
     }]
 });
 
+//adding an instance method to user schema to generate a token and attatch it to it in the db
 userSchema.methods.generateAuthToken = async function(){
     const user = this;
 
@@ -58,6 +59,7 @@ userSchema.methods.generateAuthToken = async function(){
     return token;
 }
 
+//adding a reference method to user schema to find user by email and password
 userSchema.statics.findByCredentials= async (email, password) => {
     const user = await User.findOne({email});
     
@@ -74,6 +76,7 @@ userSchema.statics.findByCredentials= async (email, password) => {
     return user;
 }
 
+//function hashing the password, to be called before every save action on the schema (hence -pre-)
 userSchema.pre('save', async function(next){
     const user = this;
 
@@ -81,7 +84,7 @@ userSchema.pre('save', async function(next){
         user.password = await bcrypt.hash(user.password, 8);
     }
 
-    next();
+    next();//if ommited, the request never goes forward and hangs when timedout
 })
 
 const User = mongoose.model('User', userSchema);

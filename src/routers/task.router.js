@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/task.model');
 
+//creating a brand new task - endpoint 
 router.post('/tasks', (req, res)=>{
     const task = new Task(req.body);
     
@@ -12,6 +13,7 @@ router.post('/tasks', (req, res)=>{
     })
 })
 
+//getting all tasks - endpoint
 router.get('/tasks', (req, res)=>{
     Task.find({}).then(tasks => {
         res.status(200).send(tasks);
@@ -20,18 +22,20 @@ router.get('/tasks', (req, res)=>{
     })
 })
 
+//getting a task by id - endpoint
 router.get('/tasks/:id', (req, res)=>{
     const _id= req.params.id;
-    Task.find({_id}).then(user => {
-        res.status(200).send(user);
+    Task.find({_id}).then(task => {
+        res.status(200).send(task);
     }).catch(error=>{
         if(error.kind=="ObjectId"){
-            return res.status(404).send('No user found with matching ID');
+            return res.status(404).send('No task found with matching ID');
         }
         res.status(500).send(error);
     })
 })
 
+//updating a task - endpoint
 router.patch('/tasks/:id', async (req, res)=>{
     const _id= req.params.id;
     const allowedUpdates = ['description', 'completed'];
@@ -52,6 +56,7 @@ router.patch('/tasks/:id', async (req, res)=>{
     }
 })
 
+//deleting a task - endpoint
 router.delete('/tasks/:id', async (req,res)=>{
     const _id= req.params.id;
     try{
