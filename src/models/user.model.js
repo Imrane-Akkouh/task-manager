@@ -49,6 +49,13 @@ const userSchema = new mongoose.Schema({
     }]
 });
 
+//relationship between users and their tasks using FK owner linked to PK _id
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner'
+})
+
 //adding an instance method to user schema to generate a token and attatch it to it in the db
 userSchema.methods.generateAuthToken = async function(){
     const user = this;
