@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Task = require('./task.model');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -94,7 +95,7 @@ userSchema.statics.findByCredentials= async (email, password) => {
     return user;
 }
 
-//function hashing the password, to be called before every save action on the schema (hence -pre-)
+//function hashing the password, to be called before every save action on the schema
 userSchema.pre('save', async function(next){
     const user = this;
 
@@ -102,6 +103,14 @@ userSchema.pre('save', async function(next){
         user.password = await bcrypt.hash(user.password, 8);
     }
 
+    next();//if ommited, the request never goes forward and hangs when timedout
+})
+
+//function deleting tasks on cascade, te be called before every delete action on the schema
+userSchema.pre('remove', async function(next){
+    const user = this;
+
+    await Task.deleteMany({owner: user._id});
     next();//if ommited, the request never goes forward and hangs when timedout
 })
 
