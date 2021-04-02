@@ -20,13 +20,19 @@ router.post('/tasks', auth, (req, res) => {
 //getting all tasks associated with current user - endpoint
 router.get('/tasks', auth, async (req, res) => {
     const match = {};
+    const sort = {};
 
     if (req.query.completed) {
-        match.completed = req.query.completed === 'true'
+        match.completed = req.query.completed === 'true';
     }
     if (req.query.description) {
         //not optimal but only solution for partial text match with mongoDB
         match.description = { $regex: ".*" + req.query.description + ".*" }
+    }
+
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        sort[parts[0]] = (parts[1] === 'desc' ? -1 : 1);
     }
 
     await req.user.populate({
@@ -34,7 +40,8 @@ router.get('/tasks', auth, async (req, res) => {
         match,
         options: {
             limit: parseInt(req.query.limit),
-            skip: parseInt(req.query.skip)
+            skip: parseInt(req.query.skip),
+            sort
         }
     }).execPopulate();
     res.send(req.user.tasks);
