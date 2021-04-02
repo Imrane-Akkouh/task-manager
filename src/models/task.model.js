@@ -19,5 +19,8 @@ const taskSchema = new mongoose.Schema({
     timestamps: true
 })
 
+//enable this if indexed text search is needed
+//taskSchema.index({ description: 'text' });
+
 const Task = mongoose.model('Task', taskSchema);
 module.exports = Task;
