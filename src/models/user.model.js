@@ -42,6 +42,9 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    avatar: {
+        type: Buffer
+    },
     tokens: [{ //holds multiple tokens in case user logs in with different devices
         token: {
             type: String,
