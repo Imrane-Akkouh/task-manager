@@ -2,7 +2,21 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model');
 const auth = require('../middleware/auth.middleware');
-const { request } = require('express');
+const multer = require('multer');
+
+const upload = multer({
+    dest: 'avatars',
+    limits:{
+        fileSize: 1500000
+    },
+    fileFilter(req, file, cb){
+        if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+            cb(new Error('please upload an image file'));
+        }
+        cb(undefined, true);
+        
+    }
+})
 
 //creating a brand new user - endpoint 
 router.post('/users', (req, res)=>{
@@ -55,6 +69,14 @@ router.post('/users/logoutAll', auth, async (req, res)=>{
 router.get('/users/me', auth, (req, res)=>{
     res.send(req.user);
 })
+
+router.post('/users/me/avatar', upload.single('avatar'), (req, res)=>{
+    res.send()
+}, (error, req, res, next)=>{
+    if(error)
+    res.status(400).send({error: error.message});
+})
+
 
 //getting a user by id (Admins only) - endpoint
 // router.get('/users/:id', (req, res)=>{

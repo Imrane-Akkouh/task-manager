@@ -30,7 +30,7 @@ router.get('/tasks', auth, async (req, res) => {
         match.description = { $regex: ".*" + req.query.description + ".*" }
     }
 
-    if (req.query.sortBy) {
+    if (req.query.sortBy) {// example url for sorting would be {{url}}/sortBy=createdAt:desc
         const parts = req.query.sortBy.split(':');
         sort[parts[0]] = (parts[1] === 'desc' ? -1 : 1);
     }
