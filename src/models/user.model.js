@@ -79,6 +79,7 @@ userSchema.methods.toJSON = function(){
     const userObject = user.toObject();
     delete userObject.password;
     delete userObject.tokens;
+    delete userObject.avatar; //large binary data, use get request to get it
 
     return userObject;
 }

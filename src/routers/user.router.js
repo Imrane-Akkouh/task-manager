@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const sharp = require('sharp');
 const User = require('../models/user.model');
 const auth = require('../middleware/auth.middleware');
 const multer = require('multer');
@@ -78,7 +79,7 @@ router.get('/users/:id/avatar', async (req, res) => {
         if (!user || !user.avatar) {
             throw new Error("user not found or doesn't have a profile picture")
         }
-        res.set('Content-Type', 'image/jpg');
+        res.set('Content-Type', 'image/png');
         res.send(user.avatar);
     } catch (error) {
         res.status(404).send({ error })
@@ -87,7 +88,8 @@ router.get('/users/:id/avatar', async (req, res) => {
 
 //creating & updating an avatar image for user - endpoint
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
-    req.user.avatar = req.file.buffer;
+    const buffer = await sharp(req.file.buffer).resize({width: 240, height: 240}).png().toBuffer();
+    req.user.avatar = buffer;
     await req.user.save();
     res.send()
 }, (error, req, res, next) => {
