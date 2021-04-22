@@ -42,6 +42,9 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    avatar: {
+        type: Buffer
+    },
     tokens: [{ //holds multiple tokens in case user logs in with different devices
         token: {
             type: String,
@@ -63,7 +66,7 @@ userSchema.virtual('tasks', {
 userSchema.methods.generateAuthToken = async function(){
     const user = this;
 
-    const token = jwt.sign({ _id: user._id.toString() }, 'nodetuto');
+    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
     user.tokens.push({token});
     await user.save();
     return token;
@@ -76,6 +79,7 @@ userSchema.methods.toJSON = function(){
     const userObject = user.toObject();
     delete userObject.password;
     delete userObject.tokens;
+    delete userObject.avatar; //large binary data, use get request to get it
 
     return userObject;
 }
