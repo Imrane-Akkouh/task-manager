@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1:27017/task-manager', {
+const dbHostString = process.env.HOST
+const dbName = process.env.DB_NAME
+
+mongoose.connect(`${dbHostString}/${dbName}`, {
     useNewUrlParser: true,
     useCreateIndex: true,
+    useUnifiedTopology: true
 });
