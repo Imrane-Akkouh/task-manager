@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 
-const dbHostString = process.env.HOST
-const dbName = process.env.DB_NAME
+const dbHostString = process.env.MONGODB_URL
 
-mongoose.connect(`${dbHostString}/${dbName}`, {
+mongoose.connect(`${dbHostString}`, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true
